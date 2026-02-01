@@ -280,9 +280,9 @@ function openDocumentModal(file, title) {
         documentLoader.classList.add('hidden');
         documentFallback.classList.add('active');
     } else {
-        // Use Google Docs Viewer for production
+        // Use Microsoft Office Online Viewer for production
         const fileUrl = encodeURIComponent(window.location.origin + '/' + file);
-        const viewerUrl = `https://docs.google.com/viewer?url=${fileUrl}&embedded=true`;
+        const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${fileUrl}`;
         documentFrame.src = viewerUrl;
 
         documentFrame.onload = () => {
@@ -295,7 +295,7 @@ function openDocumentModal(file, title) {
                 documentLoader.classList.add('hidden');
                 documentFallback.classList.add('active');
             }
-        }, 10000);
+        }, 15000);
     }
 }
 
