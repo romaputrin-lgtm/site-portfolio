@@ -97,7 +97,7 @@ filterBtns.forEach(btn => {
 
 // ===== Active Navigation Highlight =====
 const navLinks = document.querySelectorAll('.nav-link:not(.nav-link-accent)');
-const sectionIds = ['about', 'services', 'portfolio', 'testimonials', 'contact'];
+const sectionIds = ['about', 'services', 'portfolio', 'projects', 'testimonials', 'contact'];
 
 function updateActiveNav() {
     const scrollPosition = window.scrollY + header.offsetHeight + 100;
