@@ -231,8 +231,10 @@ const documentFallback = document.getElementById('documentFallback');
 const downloadBtn = document.getElementById('downloadBtn');
 const fallbackDownloadBtn = document.getElementById('fallbackDownloadBtn');
 
-// Check if running on localhost
-const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+// Check if running locally (localhost or file://)
+const isLocalhost = window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.protocol === 'file:';
 
 // Portfolio card click handler
 portfolioCards.forEach(card => {
