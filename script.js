@@ -94,51 +94,6 @@ filterBtns.forEach(btn => {
     });
 });
 
-// ===== Contact Form =====
-const contactForm = document.getElementById('contactForm');
-
-contactForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    // Get form data
-    const formData = new FormData(contactForm);
-    const data = Object.fromEntries(formData);
-
-    // Here you would typically send the data to a server
-    // For now, we'll just show a success message
-
-    // Create success message
-    const successMessage = document.createElement('div');
-    successMessage.className = 'form-success';
-    successMessage.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-        </svg>
-        <h3>Заявка отправлена!</h3>
-        <p>Я свяжусь с вами в ближайшее время</p>
-    `;
-
-    // Style the success message
-    successMessage.style.cssText = `
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--accent);
-    `;
-    successMessage.querySelector('h3').style.cssText = `
-        margin: 16px 0 8px;
-        font-family: var(--font-serif);
-        font-size: 24px;
-        color: var(--text-primary);
-    `;
-    successMessage.querySelector('p').style.cssText = `
-        color: var(--text-secondary);
-    `;
-
-    // Replace form with success message
-    contactForm.innerHTML = '';
-    contactForm.appendChild(successMessage);
-});
 
 // ===== Active Navigation Highlight =====
 const navLinks = document.querySelectorAll('.nav-link:not(.nav-link-accent)');
@@ -199,26 +154,6 @@ serviceCards.forEach(card => {
     cardObserver.observe(card);
 });
 
-// ===== Testimonial Cards Stagger Animation =====
-const testimonialCards = document.querySelectorAll('.testimonial-card');
-
-const testimonialObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-            setTimeout(() => {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }, index * 150);
-        }
-    });
-}, { threshold: 0.2 });
-
-testimonialCards.forEach(card => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(30px)';
-    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    testimonialObserver.observe(card);
-});
 
 // ===== Portfolio Cards Animation =====
 portfolioCards.forEach((card, index) => {
@@ -282,6 +217,122 @@ const statObserver = new IntersectionObserver((entries) => {
 
 statNumbers.forEach(stat => {
     statObserver.observe(stat);
+});
+
+// ===== Portfolio Modal System =====
+const imageModal = document.getElementById('imageModal');
+const documentModal = document.getElementById('documentModal');
+const modalImage = document.getElementById('modalImage');
+const imageModalTitle = document.getElementById('imageModalTitle');
+const documentModalTitle = document.getElementById('documentModalTitle');
+const documentFrame = document.getElementById('documentFrame');
+const documentLoader = document.getElementById('documentLoader');
+const documentFallback = document.getElementById('documentFallback');
+const downloadBtn = document.getElementById('downloadBtn');
+const fallbackDownloadBtn = document.getElementById('fallbackDownloadBtn');
+
+// Check if running on localhost
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+// Portfolio card click handler
+portfolioCards.forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+        const type = card.dataset.type;
+        const file = card.dataset.file;
+        const title = card.querySelector('.portfolio-title').textContent;
+
+        if (type === 'image') {
+            openImageModal(file, title);
+        } else if (type === 'document') {
+            openDocumentModal(file, title);
+        }
+    });
+});
+
+// Open image modal
+function openImageModal(src, title) {
+    modalImage.src = src;
+    modalImage.alt = title;
+    imageModalTitle.textContent = title;
+    imageModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+// Open document modal
+function openDocumentModal(file, title) {
+    documentModalTitle.textContent = title;
+    downloadBtn.href = file;
+    fallbackDownloadBtn.href = file;
+
+    // Reset state
+    documentLoader.classList.remove('hidden');
+    documentFallback.classList.remove('active');
+    documentFrame.src = '';
+
+    documentModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    if (isLocalhost) {
+        // Show fallback for localhost
+        documentLoader.classList.add('hidden');
+        documentFallback.classList.add('active');
+    } else {
+        // Use Google Docs Viewer for production
+        const fileUrl = encodeURIComponent(window.location.origin + '/' + file);
+        const viewerUrl = `https://docs.google.com/viewer?url=${fileUrl}&embedded=true`;
+        documentFrame.src = viewerUrl;
+
+        documentFrame.onload = () => {
+            documentLoader.classList.add('hidden');
+        };
+
+        // Fallback timeout
+        setTimeout(() => {
+            if (!documentLoader.classList.contains('hidden')) {
+                documentLoader.classList.add('hidden');
+                documentFallback.classList.add('active');
+            }
+        }, 10000);
+    }
+}
+
+// Close modals
+function closeModal(modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+
+    if (modal === documentModal) {
+        documentFrame.src = '';
+    }
+}
+
+// Close button handlers
+document.querySelectorAll('.modal-close').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal');
+        closeModal(modal);
+    });
+});
+
+// Backdrop click to close
+document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+        const modal = e.target.closest('.modal');
+        closeModal(modal);
+    });
+});
+
+// Escape key to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if (imageModal.classList.contains('active')) {
+            closeModal(imageModal);
+        }
+        if (documentModal.classList.contains('active')) {
+            closeModal(documentModal);
+        }
+    }
 });
 
 // ===== Initialize =====
